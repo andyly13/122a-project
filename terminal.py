@@ -8,12 +8,12 @@ from mysql.connector.errors import Error
 def connect(UserName, PassWord, DataBase_Name):
     try:
         connection = mysql.connector.connect(user=UserName, password=PassWord, database=DataBase_Name)
-
         cursor = connection.cursor()
-        return cursor.connection
+        return cursor, connection 
     except mysql.connector.Error as e:
-        print("There was an error to connect: ", e)
+        print(e)
         return None, None
+
     
 
 
