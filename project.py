@@ -13,7 +13,7 @@ def main():
     startingpoint = sys.argv[1]
     if startingpoint == 'import': 
         DB_creation(cur, DataBase_Name)
-        print("DB created")
+        #print("DB created")
         parsingfiles(cur, con, sys.argv[2])
 
     if startingpoint in ('insertViewer', 'insertMovie', 'insertSession'):
@@ -23,8 +23,8 @@ def main():
         deletions(cur, con, startingpoint, sys.argv)
 
     #does genre have a table???
-    if startingpoint in ('addGenre'):
-        addGenre(cur, con, sys.argv)
+    # if startingpoint in ('addGenre'):
+    #     addGenre(cur, con, sys.argv)
         
 
 if __name__ == "__main__":

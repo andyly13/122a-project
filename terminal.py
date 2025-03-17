@@ -76,7 +76,7 @@ def DB_creation(cursor, DataBase):
     PRIMARY KEY (rid, ep_num),
     FOREIGN KEY (rid) REFERENCES Releases(rid) ON DELETE CASCADE)"""
 
-    sessions = """CREATE TABLE sessions (
+    sessions = """CREATE TABLE Sessions (
     sid INT,
     uid INT NOT NULL,
     rid INT NOT NULL,
@@ -131,16 +131,18 @@ def parsingfiles(cursor, connection, sysargv):
                 for row in reader:
                     cursor.execute(query, row)
                     connection.commit()
-                print(f"Success for {table_name}\n ")
+                #print(f"Success for {table_name}\n ")
 
-        print("All data inserted successfully!")
+        #print("All data inserted successfully!")
+
+        print("Success\n")
 
     except Exception as e:
-        print(f"Error: {e}")
         print("Fail\n ")
+        print(f"Error: {e}")
 
 
-def insertions (cursor, connection, x, insert_value):
+def insertions(cursor, connection, x, insert_value):
     try:
 
         #can someone check me to see if these inserts goes anywhere else based on the ER diagram...
