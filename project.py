@@ -25,7 +25,10 @@ def main():
     #does genre have a table???
     # if startingpoint in ('addGenre'):
     #     addGenre(cur, con, sys.argv)
-        
+
+    if startingpoint in ('updateRelease'):
+        updating(cur, con, sys.argv[1:])
+
 
 if __name__ == "__main__":
     main()

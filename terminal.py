@@ -190,5 +190,28 @@ def addGenre(cursor, connection, x, add_value):
     except mysql.connector.Error as e:
         print(f'Fail\n')
 
+def updating(cursor, connection, x):
+
+    try:
+        if x[0] != "updateRelease": 
+            print("Fail\n")
+            return False
+
+        rid = int(x[1]) 
+        title = ' '.join(x[2:]) 
+
+        cursor.execute('UPDATE Releases SET Title = %s WHERE rid = %s', (title, rid))
+        connection.commit()
+
+        print("Success\n")
+        return True  
+
+    except mysql.connector.Error as e:
+        print(f"Fail\n")
+        return False
+    
+
+
+
 
 
