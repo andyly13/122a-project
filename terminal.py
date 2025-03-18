@@ -131,9 +131,6 @@ def parsingfiles(cursor, connection, sysargv):
                 for row in reader:
                     cursor.execute(query, row)
                     connection.commit()
-                #print(f"Success for {table_name}\n ")
-
-        #print("All data inserted successfully!")
 
         print("Success\n")
 
@@ -146,11 +143,14 @@ def insertions(cursor, connection, x, insert_value):
     try:
 
         #can someone check me to see if these inserts goes anywhere else based on the ER diagram...
-        # missing one part of the insert viewer test but idk what to fix
+        # missing one part of the insert viewer2 test but idk what to fix
 
         if insert_value == 'insertViewer':
             cursor.execute('INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s, %s, %s, %s)', (int(x[1])), x[2], x[3], x[4])
             cursor.execute('INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (x[0]), x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11])
+            cursor.execute('INSERT INTO Producers (uid, bio, company) VALUES (%s, %s, %s)', (int(x[1]), x[12], x[13]))
+            cursor.execute('INSERT INTO Sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (x[14]), (x[15]), (x[16]), (x[17]), x[18], x[19], x[20], x[21])
+            cursor.execute('INSERT INTO Reviews (uid, rid, rating, body, posted_at) VALUES (%s, %s, %s, %s, %s)', (int(x[1]), int(x[14]), float(x[15]), x[16], x[17]))
             connection.commit()
         print("Success\n")
 
@@ -179,14 +179,11 @@ def deletions(cursor, connection, x, delete_value):
     except mysql.connector.Error as e:
         print(f'Fail\n')
 
+
+## missing one part of the addGenre2 test but idk what to fix 
 def addGenre(cursor, connection, uid, new_genre):
     try:
-        cursor.execute("""
-            UPDATE Releases 
-            SET genre = CONCAT_WS(';', genre, %s) 
-            WHERE rid = %s
-        """, (new_genre, uid))
-        
+        cursor.execute(""" UPDATE Releases SET genre = CONCAT_WS(';', genre, %s) WHERE rid = %s """, (new_genre, uid))
         connection.commit()
         print("Success\n")
     
@@ -196,12 +193,10 @@ def addGenre(cursor, connection, uid, new_genre):
 
 
 def updating(cursor, connection, x):
-
     try:
         if x[0] != "updateRelease": 
             print("Fail\n")
             return False
-
         rid = int(x[1]) 
         title = ' '.join(x[2:]) 
 
@@ -215,8 +210,73 @@ def updating(cursor, connection, x):
         print(f"Fail\n")
         return False
     
+#8 i dont think it works LOL
+def releasereview(cursor, connection, uid):
+    try:
+        cursor.execute("""SELECT DISTINCT r.rid, r.genre, r.title 
+                          FROM Reviews rv 
+                          JOIN Releases r ON rv.rid = r.rid 
+                          WHERE rv.uid = %s 
+                          ORDER BY r.title ASC;""", (uid,))
+
+        all_data = cursor.fetchall()
+
+        output_list = []
+        for row in all_data:
+            output_list.append(row)
+
+        for row in output_list:
+            print(f"{row[0]}, {row[1]}, {row[2]}")
+
+        print("Success\n")
+
+    except mysql.connector.Error as e:
+        print(f"Fail\n")
+
+# ## this is for popular release number 9 but i think somethings wrong with the query or my logic....
+# def popular(cursor, connection, sysargv):
+#     try:
+#         cursor.execute("""
+#             SELECT r.rid, r.title, COUNT(rv.rid) AS review_count 
+#             FROM Reviews rv 
+#             JOIN Releases r ON rv.rid = r.rid 
+#             GROUP BY r.rid, r.title 
+#             ORDER BY review_count DESC, r.rid ASC 
+#             LIMIT %s;
+#         """, (sysargv, ))
+
+#         all_data = cursor.fetchall()
+
+#         output_list = []
+#         for row in all_data:
+#             output_list.append(row)
+
+#         for row in output_list:
+#             print(f"{row[0]}, {row[1]}, {row[2]}")  
+
+#         print("Success\n")
+
+#     except mysql.connector.Error as e:
+#         print(f"Fail\n")
 
 
+# #number 10 lol error oopsies 
+# def releaseTitle(cursor, conn, sysargv): 
+#     try:
+#         cursor.execute("""
+#             SELECT r.ReleaseID, r.Title AS release_title, r.Genre, v.Title AS video_title, v.EpisodeNumber, v.Length
+#             FROM Sessions s
+#             INNER JOIN Videos v ON s.VideoID = v.VideoID
+#             INNER JOIN Releases r ON v.ReleaseID = r.ReleaseID
+#             WHERE s.SessionID = %s
+#             ORDER BY r.Title ASC
+#             GROUP BY r.ReleaseID, r.Title;""", (sysargv[2],))
 
+#         all_data = cursor.fetchall()
+#         output_list = [x for x in all_data]
 
+#         for x in output_list:
+#             print(f"{x[0]},{x[1]},{x[2]},{x[3]},{x[4]},{x[5]}")
 
+#     except mysql.connector.Error:
+#         print("Fail\n")
