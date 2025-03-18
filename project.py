@@ -22,12 +22,16 @@ def main():
     if startingpoint in('deleteViewer'):
         deletions(cur, con, startingpoint, sys.argv)
 
-    #does genre have a table???
-    # if startingpoint in ('addGenre'):
-    #     addGenre(cur, con, sys.argv)
+    if startingpoint in ('addGenre'):
+        uid = int(sys.argv[2])
+        new_genre = sys.argv[3]
+        addGenre(cur, con, uid, new_genre)
 
     if startingpoint in ('updateRelease'):
         updating(cur, con, sys.argv[1:])
+
+    if startingpoint in ('listReleases'):
+        pass
 
 
 if __name__ == "__main__":

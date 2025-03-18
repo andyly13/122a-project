@@ -179,16 +179,21 @@ def deletions(cursor, connection, x, delete_value):
     except mysql.connector.Error as e:
         print(f'Fail\n')
 
-#do i insert?? or do i update?...this part dont work yet guys HELP
-def addGenre(cursor, connection, x, add_value):
+def addGenre(cursor, connection, uid, new_genre):
     try:
-        if add_value == 'addGenre':
-            cursor.execute('INSERT INTO Releases SET genre = %s WHERE rid = %s', (x[1], int(x[0])))
-            connection.commit()
+        cursor.execute("""
+            UPDATE Releases 
+            SET genre = CONCAT_WS(';', genre, %s) 
+            WHERE rid = %s
+        """, (new_genre, uid))
+        
+        connection.commit()
         print("Success\n")
+    
+    except mysql.connector.Error:
+        print("Fail\n")
 
-    except mysql.connector.Error as e:
-        print(f'Fail\n')
+
 
 def updating(cursor, connection, x):
 
