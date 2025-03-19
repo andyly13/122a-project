@@ -138,12 +138,11 @@ def parsingfiles(cursor, connection, sysargv):
         print("Fail\n ")
         print(f"Error: {e}")
 
+#can someone check me to see if these inserts goes anywhere else based on the ER diagram...
+        # missing one part of the insert viewer2 test but idk what to fix
 
 def insertions(cursor, connection, x, insert_value):
     try:
-
-        #can someone check me to see if these inserts goes anywhere else based on the ER diagram...
-        # missing one part of the insert viewer2 test but idk what to fix
 
         if insert_value == 'insertViewer':
             cursor.execute('INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s, %s, %s, %s)', (int(x[1])), x[2], x[3], x[4])
@@ -183,7 +182,7 @@ def deletions(cursor, connection, x, delete_value):
 ## missing one part of the addGenre2 test but idk what to fix 
 def addGenre(cursor, connection, uid, new_genre):
     try:
-        cursor.execute(""" UPDATE Releases SET genre = CONCAT_WS(';', genre, %s) WHERE rid = %s """, (new_genre, uid))
+        cursor.execute(""" UPDATE Releases SET genre = CONCAT(genre, ';', %s) WHERE rid = %s """, (new_genre, uid))
         connection.commit()
         print("Success\n")
     
@@ -212,53 +211,38 @@ def updating(cursor, connection, x):
     
 #8 i dont think it works LOL
 def releasereview(cursor, connection, uid):
-    try:
-        cursor.execute("""SELECT DISTINCT r.rid, r.genre, r.title 
+    
+    query = """SELECT DISTINCT r.rid, r.genre, r.title 
                           FROM Reviews rv 
                           JOIN Releases r ON rv.rid = r.rid 
                           WHERE rv.uid = %s 
-                          ORDER BY r.title ASC;""", (uid,))
+                          ORDER BY r.title ASC"""
 
-        all_data = cursor.fetchall()
+    cursor.execute(query, (uid,))
+    all_data = cursor.fetchall()
+    
+    return all_data 
 
-        output_list = []
-        for row in all_data:
-            output_list.append(row)
+#works now i think
+def popular(cursor, connection, N):
+    query = """
+        SELECT r.rid, r.title, COUNT(rv.rid) AS review_count 
+        FROM Releases r 
+        JOIN Reviews rv ON r.rid = rv.rid 
+        GROUP BY r.rid, r.title 
+        ORDER BY review_count DESC, r.rid ASC 
+        LIMIT %s
+    """
 
-        for row in output_list:
-            print(f"{row[0]}, {row[1]}, {row[2]}")
+    cursor.execute(query, (N,))
+    all_data = cursor.fetchall()
 
-        print("Success\n")
+    for row in all_data:
+        print(f"{row[0]},{row[1]},{row[2]}") 
+    
+    return all_data  
 
-    except mysql.connector.Error as e:
-        print(f"Fail\n")
-
-# ## this is for popular release number 9 but i think somethings wrong with the query or my logic....
-# def popular(cursor, connection, sysargv):
-#     try:
-#         cursor.execute("""
-#             SELECT r.rid, r.title, COUNT(rv.rid) AS review_count 
-#             FROM Reviews rv 
-#             JOIN Releases r ON rv.rid = r.rid 
-#             GROUP BY r.rid, r.title 
-#             ORDER BY review_count DESC, r.rid ASC 
-#             LIMIT %s;
-#         """, (sysargv, ))
-
-#         all_data = cursor.fetchall()
-
-#         output_list = []
-#         for row in all_data:
-#             output_list.append(row)
-
-#         for row in output_list:
-#             print(f"{row[0]}, {row[1]}, {row[2]}")  
-
-#         print("Success\n")
-
-#     except mysql.connector.Error as e:
-#         print(f"Fail\n")
-
+        
 
 # #number 10 lol error oopsies 
 # def releaseTitle(cursor, conn, sysargv): 

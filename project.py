@@ -34,8 +34,8 @@ def main():
         uid = int(sys.argv[2])  
         releasereview(cur, con, uid) 
 
-    # if startingpoint in ('popularRelease'):
-    #     popular(cur, con, int(sys.argv[2]))
+    if startingpoint == 'popularRelease':
+        popular(cur, con, int(sys.argv[2]))
 
     # if startingpoint in ('releaseTitle'):
     #     return releaseTitle(cur, con, sys.argv)
