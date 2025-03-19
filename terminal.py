@@ -179,16 +179,35 @@ def deletions(cursor, connection, x, delete_value):
         print(f'Fail\n')
 
 
-## missing one part of the addGenre2 test but idk what to fix 
+#both genre1 + 2 work now :)
 def addGenre(cursor, connection, uid, new_genre):
+
     try:
-        cursor.execute(""" UPDATE Releases SET genre = CONCAT(genre, ';', %s) WHERE rid = %s """, (new_genre, uid))
+        cursor.execute("SELECT genres FROM Users WHERE uid = %s", (uid,))
+        result = cursor.fetchone()
+
+        if not result: 
+            print("Fail\n")
+            return False
+
+    #this part checks the null values 
+        current = result[0] or "" 
+        genre_list = set(current.lower().split(';')) if current else set()
+
+        if new_genre.lower() in genre_list:
+            print("Fail\n")
+            return False
+
+        updated = ";".join(genre_list | {new_genre})
+        cursor.execute("UPDATE Users SET genres = %s WHERE uid = %s", (updated, uid))
         connection.commit()
+
         print("Success\n")
-    
+        return True
+
     except mysql.connector.Error:
         print("Fail\n")
-
+        return False
 
 
 def updating(cursor, connection, x):
