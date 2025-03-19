@@ -218,9 +218,9 @@ def addGenre(cursor, connection, uid, new_genre):
 
 def updating(cursor, connection, x):
     try:
-        if x[0] != "updateRelease": 
-            print("Fail\n")
-            return False
+        # if x[0] != "updateRelease": # null check maybe no because will be valid input
+        #     print("Fail\n")
+        #     return False
         rid = int(x[1]) 
         title = ' '.join(x[2:]) 
 
@@ -233,20 +233,34 @@ def updating(cursor, connection, x):
     except mysql.connector.Error as e:
         print(f"Fail\n")
         return False
-    
-#8 i dont think it works LOL
-def releasereview(cursor, connection, uid):
-    
-    query = """SELECT DISTINCT r.rid, r.genre, r.title 
-                          FROM Reviews rv 
-                          JOIN Releases r ON rv.rid = r.rid 
-                          WHERE rv.uid = %s 
-                          ORDER BY r.title ASC"""
 
-    cursor.execute(query, (uid,))
-    all_data = cursor.fetchall()
-    
-    return all_data 
+
+# 8
+def releasereview(cursor, connection, uid):
+    try:
+        query = """
+            SELECT DISTINCT R.rid, RL.genre, RL.title
+            FROM Viewers as V, Reviews as R, Releases as RL
+            WHERE V.uid = %s 
+            AND V.uid = R.uid 
+            AND R.rid = RL.rid
+            ORDER BY RL.title ASC
+        """
+
+        cursor.execute(query, (uid,))
+        results = cursor.fetchall()
+
+        output_list = []
+
+        for x in results:
+            output_list.append(x)
+
+        for row in output_list:
+            print(f"{row[0]},{row[1]},{row[2]}")
+        
+    except mysql.connector.Error as e:
+        print("Fail\n")
+
 
 #works now i think
 def popular(cursor, connection, N):
@@ -266,8 +280,6 @@ def popular(cursor, connection, N):
         print(f"{row[0]},{row[1]},{row[2]}") 
     
     return all_data  
-
-        
 
 # #number 10 lol error oopsies 
 # def releaseTitle(cursor, conn, sysargv): 
