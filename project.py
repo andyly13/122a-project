@@ -17,7 +17,7 @@ def main():
         parsingfiles(cur, con, sys.argv[2])
 
     if startingpoint in ('insertViewer', 'insertMovie', 'insertSession'):
-        insertions(cur, con, startingpoint, sys.argv)
+        insertions(cur, con, startingpoint, sys.argv[2:])
 
     if startingpoint in('deleteViewer'):
         deletions(cur, con, startingpoint, sys.argv)

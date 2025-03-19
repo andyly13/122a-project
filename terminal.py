@@ -141,17 +141,18 @@ def parsingfiles(cursor, connection, sysargv):
 #can someone check me to see if these inserts goes anywhere else based on the ER diagram...
         # missing one part of the insert viewer2 test but idk what to fix
 
-def insertions(cursor, connection, x, insert_value):
+def insertions(cursor, connection, insert_value, x):
     try:
-
         if insert_value == 'insertViewer':
-            cursor.execute('INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s, %s, %s, %s)', (int(x[1])), x[2], x[3], x[4])
-            cursor.execute('INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (x[0]), x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11])
-            cursor.execute('INSERT INTO Producers (uid, bio, company) VALUES (%s, %s, %s)', (int(x[1]), x[12], x[13]))
-            cursor.execute('INSERT INTO Sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (x[14]), (x[15]), (x[16]), (x[17]), x[18], x[19], x[20], x[21])
-            cursor.execute('INSERT INTO Reviews (uid, rid, rating, body, posted_at) VALUES (%s, %s, %s, %s, %s)', (int(x[1]), int(x[14]), float(x[15]), x[16], x[17]))
+            cursor.execute("SELECT COUNT(*) FROM Users WHERE uid = %s", (int(x[0]),))
+            if cursor.fetchone()[0] > 0:
+                print("Fail\n")
+                return
+            
+            cursor.execute('INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (int(x[0]), x[1], x[8], x[2], x[3], x[4], x[5], x[6], x[7]))
+            cursor.execute('INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s, %s, %s, %s)', (int(x[0]), x[11], x[9], x[10]))
             connection.commit()
-        print("Success\n")
+            print("Success\n")
 
         if insert_value == 'insertMovie':
             cursor.execute('INSERT INTO Movies (rid, website_url) VALUES (%s, %s)', (int(x[0]), x[1]))
@@ -162,7 +163,7 @@ def insertions(cursor, connection, x, insert_value):
             cursor.execute('INSERT INTO sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (x[0]), (x[1]), (x[2]), (x[3]), x[4], x[5], x[6], x[7])
             connection.commit()
             print('Success\n')
-
+    
     except mysql.connector.Error as e:
         print(f'Fail\n')
 
