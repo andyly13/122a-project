@@ -282,7 +282,7 @@ def releaseTitle(cursor, conn, sid):
         
         cursor.execute(query, (sid,))
         results = cursor.fetchall()
-#print the table here
+        #print the table here
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
 
@@ -298,9 +298,7 @@ def activeViewer(cursor, con, n, start_date, end_date):
         WHERE DATE(s.initiate_at) BETWEEN %s AND %s
         GROUP BY v.uid
         HAVING COUNT(*) >= %s
-        ORDER BY v.uid ASC
-
-    """
+        ORDER BY v.uid ASC"""
     cursor.execute(query, (start_date, end_date, n))
     rows = cursor.fetchall()
     for row in rows:
@@ -314,8 +312,8 @@ def videosViewed(cursor, connection, rid):
             WHERE v.rid = %s
             GROUP BY v.rid, v.ep_num, v.title, v.length
             ORDER BY v.rid DESC; """
+    
     cursor.execute(query, (rid,))
-
     results = cursor.fetchall()
     
     for row in results:
