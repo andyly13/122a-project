@@ -218,9 +218,9 @@ def addGenre(cursor, connection, uid, new_genre):
 
 def updating(cursor, connection, x):
     try:
-        # if x[0] != "updateRelease": # null check maybe no because will be valid input
-        #     print("Fail\n")
-        #     return False
+        if x[0] != "updateRelease": 
+            print("Fail\n")
+            return False
         rid = int(x[1]) 
         title = ' '.join(x[2:]) 
 
@@ -233,34 +233,20 @@ def updating(cursor, connection, x):
     except mysql.connector.Error as e:
         print(f"Fail\n")
         return False
-
-
-# 8
+    
+#8 i dont think it works LOL
 def releasereview(cursor, connection, uid):
-    try:
-        query = """
-            SELECT DISTINCT R.rid, RL.genre, RL.title
-            FROM Viewers as V, Reviews as R, Releases as RL
-            WHERE V.uid = %s 
-            AND V.uid = R.uid 
-            AND R.rid = RL.rid
-            ORDER BY RL.title ASC
-        """
+    
+    query = """SELECT DISTINCT r.rid, r.genre, r.title 
+                          FROM Reviews rv 
+                          JOIN Releases r ON rv.rid = r.rid 
+                          WHERE rv.uid = %s 
+                          ORDER BY r.title ASC"""
 
-        cursor.execute(query, (uid,))
-        results = cursor.fetchall()
-
-        output_list = []
-
-        for x in results:
-            output_list.append(x)
-
-        for row in output_list:
-            print(f"{row[0]},{row[1]},{row[2]}")
-        
-    except mysql.connector.Error as e:
-        print("Fail\n")
-
+    cursor.execute(query, (uid,))
+    all_data = cursor.fetchall()
+    
+    return all_data 
 
 #works now i think
 def popular(cursor, connection, N):
@@ -281,23 +267,31 @@ def popular(cursor, connection, N):
     
     return all_data  
 
+        
+
 # #number 10 lol error oopsies 
-# def releaseTitle(cursor, conn, sysargv): 
-#     try:
-#         cursor.execute("""
-#             SELECT r.ReleaseID, r.Title AS release_title, r.Genre, v.Title AS video_title, v.EpisodeNumber, v.Length
-#             FROM Sessions s
-#             INNER JOIN Videos v ON s.VideoID = v.VideoID
-#             INNER JOIN Releases r ON v.ReleaseID = r.ReleaseID
-#             WHERE s.SessionID = %s
-#             ORDER BY r.Title ASC
-#             GROUP BY r.ReleaseID, r.Title;""", (sysargv[2],))
+def releaseTitle(cursor, conn, sid): 
+    try:
+        query = """
+            SELECT 
+                r.rid, 
+                r.title AS release_title, 
+                r.genre, 
+                v.title AS video_title, 
+                v.ep_num, 
+                v.length
+            FROM Sessions s
+            JOIN Videos v ON s.rid = v.rid AND s.ep_num = v.ep_num
+            JOIN Releases r ON v.rid = r.rid
+            WHERE s.sid = %s
+            ORDER BY r.title ASC
+        """
+        cursor.execute(query, (sid,))
+        results = cursor.fetchall()
 
-#         all_data = cursor.fetchall()
-#         output_list = [x for x in all_data]
+        for row in results:
+            print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
 
-#         for x in output_list:
-#             print(f"{x[0]},{x[1]},{x[2]},{x[3]},{x[4]},{x[5]}")
+    except mysql.connector.Error:
+        print("Fail\n")
 
-#     except mysql.connector.Error:
-#         print("Fail\n")

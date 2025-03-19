@@ -37,8 +37,12 @@ def main():
     if startingpoint == 'popularRelease':
         popular(cur, con, int(sys.argv[2]))
 
-    # if startingpoint in ('releaseTitle'):
-    #     return releaseTitle(cur, con, sys.argv)
+    if startingpoint == 'releaseTitle':
+        sid = int(sys.argv[2])
+        return releaseTitle(cur, con, sid)
+    
+    
+
 
 
 if __name__ == "__main__":
