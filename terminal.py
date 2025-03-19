@@ -269,29 +269,41 @@ def popular(cursor, connection, N):
 
         
 
-# #number 10 lol error oopsies 
+# #number 10
 def releaseTitle(cursor, conn, sid): 
     try:
         query = """
-            SELECT 
-                r.rid, 
-                r.title AS release_title, 
-                r.genre, 
-                v.title AS video_title, 
-                v.ep_num, 
-                v.length
+            SELECT r.rid, r.title AS release_title, r.genre, v.title AS video_title, v.ep_num, v.length
             FROM Sessions s
             JOIN Videos v ON s.rid = v.rid AND s.ep_num = v.ep_num
             JOIN Releases r ON v.rid = r.rid
             WHERE s.sid = %s
-            ORDER BY r.title ASC
-        """
+            ORDER BY r.title ASC """
+        
         cursor.execute(query, (sid,))
         results = cursor.fetchall()
-
+#print the table here
         for row in results:
             print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
 
     except mysql.connector.Error:
         print("Fail\n")
+
+
+#number 11
+
+def activeViewer(cursor, con, n, start_date, end_date):
+    query = """SELECT v.uid, v.first_name, v.last_name FROM Viewers v
+        JOIN Sessions s ON v.uid = s.uid
+        WHERE DATE(s.initiate_at) BETWEEN %s AND %s
+        GROUP BY v.uid
+        HAVING COUNT(*) >= %s
+        ORDER BY v.uid ASC
+
+    """
+    cursor.execute(query, (start_date, end_date, n))
+    rows = cursor.fetchall()
+    for row in rows:
+        print(f"{row[0]},{row[1]},{row[2]}")
+
 
