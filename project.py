@@ -41,7 +41,6 @@ def main():
         sid = int(sys.argv[2])
         return releaseTitle(cur, con, sid)
     
-
     if startingpoint == 'activeViewer':
         n = int(sys.argv[2])           
         start_date = sys.argv[3]         

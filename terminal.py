@@ -238,15 +238,22 @@ def updating(cursor, connection, x):
 def releasereview(cursor, connection, uid):
     
     query = """SELECT DISTINCT r.rid, r.genre, r.title 
-            FROM Reviews rv 
-            JOIN Releases r ON rv.rid = r.rid 
-            WHERE rv.uid = %s 
-            ORDER BY r.title ASC"""
+                          FROM Reviews rv 
+                          JOIN Releases r ON rv.rid = r.rid 
+                          WHERE rv.uid = %s 
+                          ORDER BY r.title ASC"""
 
     cursor.execute(query, (uid,))
-    all_data = cursor.fetchall()
+    results = cursor.fetchall()
+
+    output_list = []
+
+    for x in results:
+        output_list.append(x)
+
+    for row in output_list:
+        print(f"{row[0]},{row[1]},{row[2]}")
     
-    return all_data 
 
 #9
 def popular(cursor, connection, N):
