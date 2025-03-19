@@ -47,7 +47,10 @@ def main():
         start_date = sys.argv[3]         
         end_date = sys.argv[4]            
         activeViewer(cur, con, n, start_date, end_date)
-    
+
+    if startingpoint == 'videosViewed':
+        rid = int(sys.argv[2]) 
+        videosViewed(cur, con, rid)
 
 
 

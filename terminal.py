@@ -218,13 +218,13 @@ def addGenre(cursor, connection, uid, new_genre):
 
 def updating(cursor, connection, x):
     try:
-        if x[0] != "updateRelease": 
-            print("Fail\n")
-            return False
+        # if x[0] != "updateRelease": 
+        #     print("Fail\n")
+        #     return False
         rid = int(x[1]) 
         title = ' '.join(x[2:]) 
 
-        cursor.execute('UPDATE Releases SET Title = %s WHERE rid = %s', (title, rid))
+        cursor.execute('UPDATE Releases SET title = %s WHERE rid = %s', (title, rid))
         connection.commit()
 
         print("Success\n")
@@ -234,7 +234,7 @@ def updating(cursor, connection, x):
         print(f"Fail\n")
         return False
     
-#8 i dont think it works LOL
+#8
 def releasereview(cursor, connection, uid):
     
     query = """SELECT DISTINCT r.rid, r.genre, r.title 
@@ -248,7 +248,7 @@ def releasereview(cursor, connection, uid):
     
     return all_data 
 
-#works now i think
+#9
 def popular(cursor, connection, N):
     query = """
         SELECT r.rid, r.title, COUNT(rv.rid) AS review_count 
@@ -306,4 +306,18 @@ def activeViewer(cursor, con, n, start_date, end_date):
     for row in rows:
         print(f"{row[0]},{row[1]},{row[2]}")
 
+
+#12
+def videosViewed(cursor, connection, rid):
+    query = """SELECT v.rid, v.ep_num, v.title, v.length, COUNT(DISTINCT s.uid) AS COUNT FROM Videos v
+            LEFT JOIN Sessions AS s ON v.rid = s.rid
+            WHERE v.rid = %s
+            GROUP BY v.rid, v.ep_num, v.title, v.length
+            ORDER BY v.rid DESC; """
+    cursor.execute(query, (rid,))
+
+    results = cursor.fetchall()
+    
+    for row in results:
+        print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]}")
 
