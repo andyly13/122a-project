@@ -236,17 +236,29 @@ def updating(cursor, connection, x):
     
 #8 i dont think it works LOL
 def releasereview(cursor, connection, uid):
-    
-    query = """SELECT DISTINCT r.rid, r.genre, r.title 
-                          FROM Reviews rv 
-                          JOIN Releases r ON rv.rid = r.rid 
-                          WHERE rv.uid = %s 
-                          ORDER BY r.title ASC"""
+    try:
+        query = """
+            SELECT DISTINCT R.rid, RL.genre, RL.title
+            FROM Viewers as V, Reviews as R, Releases as RL
+            WHERE V.uid = %s 
+            AND V.uid = R.uid 
+            AND R.rid = RL.rid
+            ORDER BY RL.title ASC
+        """
 
-    cursor.execute(query, (uid,))
-    all_data = cursor.fetchall()
-    
-    return all_data 
+        cursor.execute(query, (uid,))
+        results = cursor.fetchall()
+
+        output_list = []
+
+        for x in results:
+            output_list.append(x)
+
+        for row in output_list:
+            print(f"{row[0]},{row[1]},{row[2]}")
+        
+    except mysql.connector.Error as e:
+        print("Fail\n")
 
 #works now i think
 def popular(cursor, connection, N):
