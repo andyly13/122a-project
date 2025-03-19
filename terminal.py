@@ -127,7 +127,7 @@ def parsingfiles(cursor, connection, sysargv):
         for filename, table_name, query in files:
             with open(f'{sysargv}/{filename}', 'r') as file:
                 reader = csv.reader(file)
-                next(reader)  # Skip header row
+                next(reader)
                 for row in reader:
                     cursor.execute(query, row)
                     connection.commit()
@@ -138,8 +138,6 @@ def parsingfiles(cursor, connection, sysargv):
         print("Fail\n ")
         print(f"Error: {e}")
 
-#can someone check me to see if these inserts goes anywhere else based on the ER diagram...
-        # missing one part of the insert viewer2 test but idk what to fix
 
 def insertions(cursor, connection, insert_value, x):
     try:
@@ -148,18 +146,25 @@ def insertions(cursor, connection, insert_value, x):
             if cursor.fetchone()[0] > 0:
                 print("Fail\n")
                 return
-            
             cursor.execute('INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)', (int(x[0]), x[1], x[8], x[2], x[3], x[4], x[5], x[6], x[7]))
             cursor.execute('INSERT INTO Viewers (uid, subscription, first_name, last_name) VALUES (%s, %s, %s, %s)', (int(x[0]), x[11], x[9], x[10]))
             connection.commit()
             print("Success\n")
 
         if insert_value == 'insertMovie':
+            cursor.execute("SELECT COUNT(*) FROM Movies WHERE rid = %s", (int(x[0]),))
+            if cursor.fetchone()[0] > 0:
+                print("Fail\n")
+                return
             cursor.execute('INSERT INTO Movies (rid, website_url) VALUES (%s, %s)', (int(x[0]), x[1]))
             connection.commit()
             print("Success\n")
 
         if insert_value == 'insertSession':
+            cursor.execute("SELECT COUNT(*) FROM Sessions WHERE sid = %s", (int(x[0]),))
+            if cursor.fetchone()[0] > 0:
+                print("Fail\n")
+                return
             cursor.execute('INSERT INTO Sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (int(x[0]), (x[1]), (x[2]), (x[3]), x[4], x[5], x[6], x[7]))
             connection.commit()
             print('Success\n')
