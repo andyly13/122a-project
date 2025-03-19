@@ -160,7 +160,7 @@ def insertions(cursor, connection, insert_value, x):
             print("Success\n")
 
         if insert_value == 'insertSession':
-            cursor.execute('INSERT INTO sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (x[0]), (x[1]), (x[2]), (x[3]), x[4], x[5], x[6], x[7])
+            cursor.execute('INSERT INTO Sessions (sid, uid, rid, ep_num, initiate_at, leave_at, quality, device) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (int(x[0]), (x[1]), (x[2]), (x[3]), x[4], x[5], x[6], x[7]))
             connection.commit()
             print('Success\n')
     
