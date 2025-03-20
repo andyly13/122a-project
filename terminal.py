@@ -254,7 +254,7 @@ def popular(cursor, connection, N):
         FROM Releases r 
         JOIN Reviews rv ON r.rid = rv.rid 
         GROUP BY r.rid, r.title 
-        ORDER BY review_count DESC, r.rid ASC 
+        ORDER BY review_count DESC, r.rid DESC 
         LIMIT %s"""
 
     cursor.execute(query, (N,))
