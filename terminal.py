@@ -20,7 +20,7 @@ def DB_creation(cursor, DataBase):
     cursor.execute('CREATE DATABASE `%s`' %DataBase)
     cursor.execute('USE `%s`' %DataBase)
 
-    user = """CREATE TABLE Users (
+    users = """CREATE TABLE Users (
     uid INT,
     email TEXT NOT NULL,
     joined_date DATE NOT NULL,
@@ -93,14 +93,14 @@ def DB_creation(cursor, DataBase):
     rvid INT,
     uid INT NOT NULL,
     rid INT NOT NULL,
-    rating DECIMAL(2, 1) NOT NULL CHECK (rating BETWEEN 0 AND 5),
+    rating DECIMAL(2, 1) NOT NULL,
     body TEXT,
     posted_at DATETIME NOT NULL,
     PRIMARY KEY (rvid),
     FOREIGN KEY (uid) REFERENCES Viewers(uid) ON DELETE CASCADE,
     FOREIGN KEY (rid) REFERENCES Releases(rid) ON DELETE CASCADE)"""
 
-    cursor.execute(user)
+    cursor.execute(users)
     cursor.execute(producers)
     cursor.execute(viewers)
     cursor.execute(releases)
@@ -173,12 +173,12 @@ def insertions(cursor, connection, insert_value, x):
         print(f'Fail\n')
 
 
-def deletions(cursor, connection, x, delete_value):
+def deletions(cursor, connection, uid):
+    uid = sys.argv[2]
     try:
-        if delete_value == 'deleteViewer':
-            cursor.execute('DELETE FROM Viewers WHERE uid = %s', (int(x[1]),))
-            cursor.execute('DELETE FROM Users WHERE uid = %s', (int(x[1]),))
-            connection.commit()
+        
+        cursor.execute('DELETE FROM Viewers WHERE uid = %s', (uid,))
+        connection.commit()
         print("Success\n")
 
     except mysql.connector.Error as e:
@@ -218,9 +218,6 @@ def addGenre(cursor, connection, uid, new_genre):
 
 def updating(cursor, connection, x):
     try:
-        # if x[0] != "updateRelease": 
-        #     print("Fail\n")
-        #     return False
         rid = int(x[1]) 
         title = ' '.join(x[2:]) 
 
@@ -236,24 +233,19 @@ def updating(cursor, connection, x):
     
 #8
 def releasereview(cursor, connection, uid):
-    
-    query = """SELECT DISTINCT r.rid, r.genre, r.title 
-                          FROM Reviews rv 
-                          JOIN Releases r ON rv.rid = r.rid 
-                          WHERE rv.uid = %s 
-                          ORDER BY r.title ASC"""
+
+    query = """SELECT DISTINCT r.rid, r.genre, r.title
+    FROM Viewers AS v
+    JOIN Reviews AS rev ON rev.uid = v.uid
+    JOIN Releases AS r ON rev.rid = r.rid
+    WHERE v.uid = %s
+    ORDER BY r.title ASC""" 
 
     cursor.execute(query, (uid,))
     results = cursor.fetchall()
 
-    output_list = []
-
-    for x in results:
-        output_list.append(x)
-
-    for row in output_list:
+    for row in results:
         print(f"{row[0]},{row[1]},{row[2]}")
-    
 
 #9
 def popular(cursor, connection, N):
@@ -272,7 +264,6 @@ def popular(cursor, connection, N):
         print(f"{row[0]},{row[1]},{row[2]}") 
     
     return all_data  
-
         
 
 # #number 10
@@ -301,8 +292,8 @@ def releaseTitle(cursor, conn, sid):
 def activeViewer(cursor, con, n, start_date, end_date):
     query = """SELECT v.uid, v.first_name, v.last_name FROM Viewers v
         JOIN Sessions s ON v.uid = s.uid
-        WHERE DATE(s.initiate_at) BETWEEN %s AND %s
-        GROUP BY v.uid
+        WHERE s.initiate_at >= %s AND s.initiate_at <= %s
+        GROUP BY v.uid, v.first_name, v.last_name
         HAVING COUNT(*) >= %s
         ORDER BY v.uid ASC"""
     cursor.execute(query, (start_date, end_date, n))
@@ -317,7 +308,7 @@ def videosViewed(cursor, connection, rid):
             LEFT JOIN Sessions AS s ON v.rid = s.rid
             WHERE v.rid = %s
             GROUP BY v.rid, v.ep_num, v.title, v.length
-            ORDER BY v.rid DESC; """
+            ORDER BY v.rid """
     
     cursor.execute(query, (rid,))
     results = cursor.fetchall()

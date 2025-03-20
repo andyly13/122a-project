@@ -20,7 +20,7 @@ def main():
         insertions(cur, con, startingpoint, sys.argv[2:])
 
     if startingpoint in('deleteViewer'):
-        deletions(cur, con, startingpoint, sys.argv)
+        deletions(cur, con, sys.argv[2])
 
     if startingpoint in ('addGenre'):
         uid = int(sys.argv[2])
@@ -50,8 +50,6 @@ def main():
     if startingpoint == 'videosViewed':
         rid = int(sys.argv[2]) 
         videosViewed(cur, con, rid)
-
-
 
 
 if __name__ == "__main__":
