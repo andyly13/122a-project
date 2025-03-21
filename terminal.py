@@ -4,9 +4,10 @@ import os
 import mysql.connector
 from mysql.connector.errors import Error
 
-def connect(UserName, PassWord, DataBase_Name):
+#make the connection here
+def connect(User, Password, DBName):
     try:
-        connection = mysql.connector.connect(user=UserName, password=PassWord, database=DataBase_Name)
+        connection = mysql.connector.connect(user=User, password=Password, database=DBName)
         cursor = connection.cursor()
         return cursor, connection 
     except mysql.connector.Error as e:
@@ -111,6 +112,7 @@ def DB_creation(cursor, DataBase):
     cursor.execute(reviews)
 
 def parsingfiles(cursor, connection, sysargv):
+    #insert all the files here, be careful of order
     try:
         files = [
             ("users.csv", 'Users', "INSERT INTO Users (uid, email, joined_date, nickname, street, city, state, zip, genres) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"),
@@ -127,6 +129,7 @@ def parsingfiles(cursor, connection, sysargv):
         for filename, table_name, query in files:
             with open(f'{sysargv}/{filename}', 'r') as file:
                 reader = csv.reader(file)
+                #skip the first line
                 next(reader)
                 for row in reader:
                     cursor.execute(query, row)
@@ -136,9 +139,8 @@ def parsingfiles(cursor, connection, sysargv):
 
     except Exception as e:
         print("Fail\n ")
-        print(f"Error: {e}")
 
-
+#insert viewer, movie, and session here
 def insertions(cursor, connection, insert_value, x):
     try:
         if insert_value == 'insertViewer':
@@ -172,7 +174,7 @@ def insertions(cursor, connection, insert_value, x):
     except mysql.connector.Error as e:
         print(f'Fail\n')
 
-
+#delete here
 def deletions(cursor, connection, uid):
     uid = sys.argv[2]
     try:
@@ -215,7 +217,7 @@ def addGenre(cursor, connection, uid, new_genre):
         print("Fail\n")
         return False
 
-
+#update here
 def updating(cursor, connection, x):
     try:
         rid = int(x[1]) 
@@ -244,24 +246,24 @@ def releasereview(cursor, connection, uid):
     cursor.execute(query, (uid,))
     results = cursor.fetchall()
 
-    for row in results:
-        print(f"{row[0]},{row[1]},{row[2]}")
+    for x in results:
+        print(f"{x[0]},{x[1]},{x[2]}")
 
 #9
 def popular(cursor, connection, N):
     query = """
-        SELECT r.rid, r.title, COUNT(rv.rid) AS review_count 
+        SELECT r.rid, r.title, COUNT(rv.rid) AS revCount 
         FROM Releases r 
         JOIN Reviews rv ON r.rid = rv.rid 
         GROUP BY r.rid, r.title 
-        ORDER BY review_count DESC, r.rid DESC 
+        ORDER BY revCount DESC, r.rid DESC 
         LIMIT %s"""
 
     cursor.execute(query, (N,))
     all_data = cursor.fetchall()
 
-    for row in all_data:
-        print(f"{row[0]},{row[1]},{row[2]}") 
+    for x in all_data:
+        print(f"{x[0]},{x[1]},{x[2]}") 
     
     return all_data  
         
@@ -280,8 +282,8 @@ def releaseTitle(cursor, conn, sid):
         cursor.execute(query, (sid,))
         results = cursor.fetchall()
         #print the table here
-        for row in results:
-            print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]},{row[5]}")
+        for x in results:
+            print(f"{x[0]},{x[1]},{x[2]},{x[3]},{x[4]},{x[5]}")
 
     except mysql.connector.Error:
         print("Fail\n")
@@ -290,21 +292,24 @@ def releaseTitle(cursor, conn, sid):
 #number 11
 
 def activeViewer(cursor, con, n, start_date, end_date):
-    query = """SELECT v.uid, v.first_name, v.last_name FROM Viewers v
+    query = """SELECT v.uid, v.first_name, v.last_name 
+        FROM Viewers v
         JOIN Sessions s ON v.uid = s.uid
         WHERE s.initiate_at >= %s AND s.initiate_at <= %s
         GROUP BY v.uid, v.first_name, v.last_name
         HAVING COUNT(*) >= %s
         ORDER BY v.uid ASC"""
+    
     cursor.execute(query, (start_date, end_date, n))
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f"{row[0]},{row[1]},{row[2]}")
+    results = cursor.fetchall()
+    for x in results:
+        print(f"{x[0]},{x[1]},{x[2]}")
 
 
 #12
 def videosViewed(cursor, connection, rid):
-    query = """SELECT v.rid, v.ep_num, v.title, v.length, COUNT(DISTINCT s.uid) AS COUNT FROM Videos v
+    query = """SELECT v.rid, v.ep_num, v.title, v.length, COUNT(DISTINCT s.uid) AS COUNT 
+            FROM Videos v
             LEFT JOIN Sessions AS s ON v.rid = s.rid
             WHERE v.rid = %s
             GROUP BY v.rid, v.ep_num, v.title, v.length
@@ -313,6 +318,6 @@ def videosViewed(cursor, connection, rid):
     cursor.execute(query, (rid,))
     results = cursor.fetchall()
     
-    for row in results:
-        print(f"{row[0]},{row[1]},{row[2]},{row[3]},{row[4]}")
+    for x in results:
+        print(f"{x[0]},{x[1]},{x[2]},{x[3]},{x[4]}")
 
